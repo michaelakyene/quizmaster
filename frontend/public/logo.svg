@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#4F46E5" stroke="#3730A3" stroke-width="3"/>
+  
+  <!-- Quiz Paper Icon -->
+  <rect x="60" y="50" width="80" height="100" rx="5" fill="white"/>
+  
+  <!-- Lines representing text -->
+  <line x1="70" y1="70" x2="130" y2="70" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+  <line x1="70" y1="85" x2="130" y2="85" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+  <line x1="70" y1="100" x2="110" y2="100" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Checkmark -->
+  <circle cx="100" cy="120" r="18" fill="#10B981"/>
+  <path d="M 92 120 L 98 126 L 108 114" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Letter Q accent -->
+  <text x="100" y="45" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white" text-anchor="middle">Q</text>
+</svg>

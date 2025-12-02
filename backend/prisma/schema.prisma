@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  SHORT_ANSWER
+  FILL_IN_THE_BLANK
+  MATCHING
+  ESSAY
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      Role      @default(STUDENT)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  attempts  Attempt[]
+
+  @@index([email])
+}
+
+model Quiz {
+  id             String     @id @default(uuid())
+  title          String
+  description    String?
+  duration       Int        @default(60) // Duration in minutes
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  questions      Question[]
+  attempts       Attempt[]
+  accessCodeHash String? // Hashed access code required to unlock quiz
+
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model Question {
+  id         String              @id @default(uuid())
+  quizId     String
+  quiz       Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text       String
+  type       QuestionType        @default(SINGLE_CHOICE)
+  points     Int                 @default(1)
+  order      Int
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  choices    Choice[]
+  textKeys   QuestionTextKey[]
+  matchPairs QuestionMatchPair[]
+  answers    Answer[]
+
+  @@index([quizId])
+  @@index([quizId, order])
+}
+
+model Choice {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean  @default(false)
+  order      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  answers    Answer[]
+
+  @@index([questionId])
+  @@index([questionId, order])
+}
+
+model Attempt {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizId      String
+  quiz        Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  score       Float     @default(0)
+  maxScore    Float     @default(0)
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+  answers     Answer[]
+
+  @@index([userId])
+  @@index([quizId])
+  @@index([quizId, submittedAt])
+}
+
+model Answer {
+  id           String   @id @default(uuid())
+  attemptId    String
+  attempt      Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  choiceId     String?
+  choice       Choice?  @relation(fields: [choiceId], references: [id], onDelete: Cascade)
+  textResponse String?
+  createdAt    DateTime @default(now())
+
+  @@index([attemptId])
+  @@index([questionId])
+  @@index([attemptId, questionId])
+}
+
+model QuestionTextKey {
+  id            String   @id @default(uuid())
+  questionId    String
+  question      Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value         String
+  caseSensitive Boolean  @default(false)
+}
+
+model QuestionMatchPair {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  prompt     String
+  answer     String
+}
+
+// Removed AnswerMatchPair model as it's not used and caused relation errors
